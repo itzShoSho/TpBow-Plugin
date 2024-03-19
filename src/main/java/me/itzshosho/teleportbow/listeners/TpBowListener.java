@@ -15,25 +15,52 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class TpBowListener implements Listener {
+
+    private final HashMap<UUID, Long> cooldown;
+
+    public TpBowListener(){
+        this.cooldown = new HashMap<>();
+    }
 
     @EventHandler
     public void onArrowLand(ProjectileHitEvent e){
 
         //check to see if it was shot by the tp bow
         if(e.getEntity().getShooter() instanceof Player p){
+            if(!cooldown.containsKey(p.getUniqueId())){
+                this.cooldown.put(p.getUniqueId(), System.currentTimeMillis());
 
-            ItemStack shotBow = p.getInventory().getItemInMainHand();
+                ItemStack shotBow = p.getInventory().getItemInMainHand();
 
-            if(shotBow.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.translateAlternateColorCodes('&', TeleportBow.getPlugin().getConfig().getString("bow-name")))){
+                if(shotBow.getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.translateAlternateColorCodes('&', TeleportBow.getPlugin().getConfig().getString("bow-name")))){
 
-                Location loc = e.getEntity().getLocation();
+                    Location loc = e.getEntity().getLocation();
 
-                p.teleport(loc);
-                e.getEntity().remove();
-                p.sendMessage(TeleportBow.getPlugin().getConfig().getString("teleported-message"));
-                p.playSound(p, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.0f, 1.0f);
+                    p.teleport(loc);
+                    e.getEntity().remove();
+                    p.sendMessage(TeleportBow.getPlugin().getConfig().getString("teleported-message"));
+                    p.playSound(p, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.0f, 1.0f);
+                }
+            }else {
+                long timeElapsedMs = System.currentTimeMillis() - cooldown.get(p.getUniqueId());
+                long timeElapsedS = timeElapsedMs / 1000;
 
+                if(timeElapsedS >= TeleportBow.getPlugin().getConfig().getInt("cooldown-Bow")){
+                    this.cooldown.put(p.getUniqueId(), System.currentTimeMillis());
+
+                    Location loc = e.getEntity().getLocation();
+
+                    p.teleport(loc);
+                    e.getEntity().remove();
+                    p.sendMessage(TeleportBow.getPlugin().getConfig().getString("teleported-message"));
+                    p.playSound(p, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.0f, 1.0f);
+                }else {
+                    p.sendMessage(ChatColor.RED + "Slow down and wait for another: " + (TeleportBow.getPlugin().getConfig().getInt("cooldown-Bow") - timeElapsedS) + " second/s");
+                }
             }
         }
     }
