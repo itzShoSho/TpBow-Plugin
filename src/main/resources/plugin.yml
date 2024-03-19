@@ -1,0 +1,13 @@
+name: TeleportBow
+version: '${project.version}'
+main: me.itzshosho.teleportbow.TeleportBow
+api-version: '1.20'
+commands:
+  tpbow:
+    description: Give you the Teleportation Bow
+    usage: /<command>
+
+permissions:
+  TeleportBow.givebow:
+    description: A permission to get the teleport bow
+    default: op
