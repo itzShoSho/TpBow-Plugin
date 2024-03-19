@@ -12,9 +12,6 @@ Restart your server or do (/reload).
 # Configuration
 The plugin configuration file is located at TeleportBow\src\main\resources\config.yml (or a similar filename). You can edit this file to:
 
-# Cooldown timer in seconds
-cooldown: 10
-
 # Permission node
 permission: 
   TeleportBow.givebow:
